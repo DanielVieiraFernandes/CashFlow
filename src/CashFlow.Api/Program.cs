@@ -1,4 +1,7 @@
 using CashFlow.Api.Filters;
+using CashFlow.Api.Middleware;
+using CashFlow.Application;
+using CashFlow.Infraestructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,9 @@ builder.Services.AddRouting(op =>
     op.LowercaseQueryStrings = true;
 });
 
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -19,6 +25,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<CultureMiddleware>();
 
 app.UseHttpsRedirection();
 
