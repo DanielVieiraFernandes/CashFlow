@@ -1,4 +1,4 @@
-﻿using CashFlow.Application.UseCases.Expenses.Register;
+﻿using CashFlow.Application.UseCases.Expenses;
 using CashFlow.Communication.Enums;
 using CashFlow.Exception;
 using CommonTestUtilities.Requests;
@@ -13,7 +13,7 @@ public class RegisterExpenseValidatorTests
     {
         // Arrange // parte onde a gente configura todas as instâncias para executar o teste unitário
 
-        var validator = new RegisterExpenseValidator();
+        var validator = new ExpenseValidator();
 
         var request = RequestExpenseJsonBuilder.Build();
 
@@ -34,7 +34,7 @@ public class RegisterExpenseValidatorTests
     {
         // Arrange // parte onde a gente configura todas as instâncias para executar o teste unitário
 
-        var validator = new RegisterExpenseValidator();
+        var validator = new ExpenseValidator();
         var request = RequestExpenseJsonBuilder.Build();
         request.Title = string.Empty;
 
@@ -54,7 +54,7 @@ public class RegisterExpenseValidatorTests
     {
         // Arrange // parte onde a gente configura todas as instâncias para executar o teste unitário
 
-        var validator = new RegisterExpenseValidator();
+        var validator = new ExpenseValidator();
         var request = RequestExpenseJsonBuilder.Build();
         request.Date = DateTime.UtcNow.AddDays(1);
 
@@ -74,7 +74,7 @@ public class RegisterExpenseValidatorTests
     {
         // Arrange // parte onde a gente configura todas as instâncias para executar o teste unitário
 
-        var validator = new RegisterExpenseValidator();
+        var validator = new ExpenseValidator();
         var request = RequestExpenseJsonBuilder.Build();
         request.PaymentType = (PaymentType)700;
 
@@ -97,7 +97,7 @@ public class RegisterExpenseValidatorTests
     {
         // Arrange // parte onde a gente configura todas as instâncias para executar o teste unitário
 
-        var validator = new RegisterExpenseValidator();
+        var validator = new ExpenseValidator();
         var request = RequestExpenseJsonBuilder.Build();
         request.Amount = amount;
 

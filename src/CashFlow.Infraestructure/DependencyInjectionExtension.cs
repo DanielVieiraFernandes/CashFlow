@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CashFlow.Infraestructure;
-public static class c
+public static class DependencyInjectionExtension
 {
     public static void AddInfrastructure(this IServiceCollection services, IConfiguration configuration) // com o this criamos um método de extensão
     {
@@ -18,7 +18,9 @@ public static class c
     public static void AddRepository(IServiceCollection services)
     {
         services.AddScoped<IUnitOfWork, UnityOfWork>();
-        services.AddScoped<IExpensesRepository, ExpensesRepository>();
+        services.AddScoped<IExpensesWriteOnlyRepository, ExpensesRepository>();
+        services.AddScoped<IExpensesReadonlyRepository, ExpensesRepository>();
+        services.AddScoped<IExpensesUpdateOnlyRepository, ExpensesRepository>();
     }
     public static void AddDbContext(IServiceCollection services, IConfiguration configuration)
     {

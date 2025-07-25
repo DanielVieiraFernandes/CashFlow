@@ -1,9 +1,11 @@
 ﻿namespace CashFlow.Exception.ExceptionsBase;
 public abstract class CashFlowException : SystemException
 {
-    public CashFlowException()
+    protected CashFlowException(string? message) : base(message)
     {
 
     }
 
+    public abstract int StatusCode { get; }
+    public abstract List<string> GetErrors();
 }
