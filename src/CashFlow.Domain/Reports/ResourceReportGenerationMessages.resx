@@ -126,10 +126,16 @@
   <data name="DESCRIPTION" xml:space="preserve">
     <value>Description</value>
   </data>
+  <data name="EXPENSES_FOR" xml:space="preserve">
+    <value>Expenses For</value>
+  </data>
   <data name="PAYMENT_TYPE" xml:space="preserve">
     <value>Payment Type</value>
   </data>
   <data name="TITLE" xml:space="preserve">
     <value>Title</value>
+  </data>
+  <data name="TOTAL_SPENT_IN" xml:space="preserve">
+    <value>Total spent in {0}</value>
   </data>
 </root>

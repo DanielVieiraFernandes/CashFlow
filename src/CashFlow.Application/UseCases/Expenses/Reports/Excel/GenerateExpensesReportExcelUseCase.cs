@@ -1,4 +1,5 @@
-﻿using CashFlow.Domain.Entities;
+﻿using CashFlow.Domain;
+using CashFlow.Domain.Entities;
 using CashFlow.Domain.Enums;
 using CashFlow.Domain.Reports;
 using CashFlow.Domain.Repositories.Expenses;
@@ -41,7 +42,7 @@ public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUs
         {
             worksheet.Cell($"A{raw}").Value = expense.Title;
             worksheet.Cell($"B{raw}").Value = expense.Date;
-            worksheet.Cell($"C{raw}").Value = ConvertPaymentType(expense.PaymentType);
+            worksheet.Cell($"C{raw}").Value = expense.PaymentType.PaymentTypeToString();
             worksheet.Cell($"D{raw}").Value = expense.Amount;
             worksheet.Cell($"D{raw}").Style.NumberFormat.Format = $"- {CURRENCY_SYMBOL} #,##0.00"; // formando isso como uma moeda com duas casas decimais
             worksheet.Cell($"E{raw}").Value = expense.Description;
