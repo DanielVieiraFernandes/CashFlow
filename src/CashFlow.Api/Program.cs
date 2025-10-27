@@ -2,6 +2,7 @@ using CashFlow.Api.Filters;
 using CashFlow.Api.Middleware;
 using CashFlow.Application;
 using CashFlow.Infraestructure;
+using CashFlow.Infraestructure.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,4 +35,17 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+await MigrateDatabase();
+
 app.Run();
+
+async Task MigrateDatabase()
+{
+    // ================================================================================================
+    // Criamos um escopo para simular uma chamada na API, assim, conseguimos
+    // chamar os serviços de injeção de dependência.
+    // ================================================================================================
+    await using var scope = app.Services.CreateAsyncScope();
+
+    await DatabaseMigration.MigrateDatabase(scope.ServiceProvider);
+}

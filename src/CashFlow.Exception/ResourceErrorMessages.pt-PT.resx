@@ -120,11 +120,24 @@
   <data name="AMOUNT_MUST_BE_GREATHER_THAN" xml:space="preserve">
     <value>O montante deve ser maior que zero</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="EMAIL_EMPTY" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
+  <data name="EMAIL_INVALID" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="EXPENSES_CANNOT_FOR_THE_FUTURE" xml:space="preserve">
     <value>As despesas não devem ser para o futuro</value>
   </data>
   <data name="EXPENSE_NOT_FOUND" xml:space="preserve">
+    <value>O e-mail é invalido</value>
+  </data>
+  <data name="INVALID_PASSWORD" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
+  </data>
+  <data name="NAME_EMPTY" xml:space="preserve">
+    <value>O e-mail está vazio</value>
   </data>
   <data name="PAYMENT_TYPE_INVALID" xml:space="preserve">
     <value>O tipo de pagamento não deve ser válido</value>
