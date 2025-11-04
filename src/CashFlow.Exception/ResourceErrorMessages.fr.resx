@@ -130,6 +130,9 @@
   <data name="EMAIL_INVALID" type="System.Resources.ResXNullRef, System.Windows.Forms">
     <value />
   </data>
+  <data name="EMAIL_OR_PASSWORD_INVALID" type="System.Resources.ResXNullRef, System.Windows.Forms">
+    <value />
+  </data>
   <data name="EXPENSES_CANNOT_FOR_THE_FUTURE" xml:space="preserve">
     <value>Les dépenses ne peuvent pas être futures</value>
   </data>
