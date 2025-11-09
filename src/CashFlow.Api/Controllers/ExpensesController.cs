@@ -11,7 +11,6 @@ namespace CashFlow.Api.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-
 public class ExpensesController : ControllerBase
 {
     [HttpPost]
@@ -32,7 +31,7 @@ public class ExpensesController : ControllerBase
     {
         var response = await useCase.Execute();
 
-        return response.Expenses.Any() ? Ok(response) : NoContent();
+        return response.Expenses.Count != 0 ? Ok(response) : NoContent();
     }
 
     [HttpGet("{id:long}")]
