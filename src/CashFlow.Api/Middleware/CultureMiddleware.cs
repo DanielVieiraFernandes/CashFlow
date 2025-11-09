@@ -15,7 +15,7 @@ public class CultureMiddleware
 
         var requestedCulture = context.Request.Headers.AcceptLanguage.FirstOrDefault();
 
-        var cultureInfo = new CultureInfo("en"); // Defino uma cultura padrão
+        var cultureInfo = new CultureInfo("pt-BR"); // Defino uma cultura padrão
 
         if (!string.IsNullOrWhiteSpace(requestedCulture) && supportedLanguages.Exists(l => l.Name.Equals(requestedCulture)))
         {
