@@ -13,7 +13,7 @@ public class RegisterUserUseCaseTest
     /*
      * Sobre os Testes de Unidade:
      * -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-     * Como queremos testar apenas um método, uma unidade da aplicação
+     * Como queremos testar apenas um método, uma unidade da aplicação,
      * para realizar a injeção de dependências, iremos utilizar implementações fake
      * (apenas uma real, o automapper, pois precisamos dele para mapear um objeto para outro)
      * pois não estamos preocupados com dependências externas, queremos apenas poder testar se o caso de uso
@@ -38,6 +38,7 @@ public class RegisterUserUseCaseTest
 
     private RegisterUserUseCase CreateUseCase()
     {
+        // Aqui é uma exceção pois precisamos dele para preencher o objeto, é apenas uma facilidade no código
         var mapper = MapperBuilder.Build();
 
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
@@ -52,7 +53,8 @@ public class RegisterUserUseCaseTest
         var writeRepository = UserWriteOnlyRepositoryBuilder.Build();
         var passwordEncrypter = PasswordEncrypterBuilder.Build();
         var jwtTokenGenerator = JwtTokenGeneratorBuilder.Build();
+        var readRepository = new UserReadOnlyRepositoryBuilder().Build();
 
-        return new RegisterUserUseCase(mapper, passwordEncrypter, null, writeRepository, unitOfWork, jwtTokenGenerator);
+        return new RegisterUserUseCase(mapper, passwordEncrypter, readRepository, writeRepository, unitOfWork, jwtTokenGenerator);
     }
 }
