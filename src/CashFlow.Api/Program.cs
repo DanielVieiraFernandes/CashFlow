@@ -123,3 +123,9 @@ async Task MigrateDatabase()
 
     await DatabaseMigration.MigrateDatabase(scope.ServiceProvider);
 }
+
+//************************************************************
+// Classe parcial necessária para os testes de integração.
+// Serve para expor o ponto de entrada da aplicação
+//************************************************************
+public partial class Program { }
