@@ -37,10 +37,23 @@ public class RegisterUserTest : IClassFixture<WebApplicationFactory<Program>>
      * e outros componentes.
      * -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
      * Como queremos testar diferentes componentes do sistema trabalhando juntos,
-     * Utilizamos o WebApplicationFactory fornecido pelo xUnit para criar um 
-     * ambiente de teste que simula a aplicação real.
+     * Utilizamos o WebApplicationFactory fornecido pelo 'Microsoft.AspNetCore.Mvc.Testing'
+     * para criar um ambiente de teste que simula a aplicação real.
+     * -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+     * Ao executar testes de integração, a API não deve persistir dados 
+     * no banco de dados real, mas sim em um banco de dados temporário ou
+     * em memória, para evitar poluição de dados.
+     * Pensando nisso, devemos configurar apenas um ambiente de testes isolado.
      * -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
      */
+
+    //**************************************************************************
+    // Ambiente de testes:
+    // A API irá ser executada em um ambiente isolado, onde podemos configurar
+    // serviços específicos para testes, como um banco de dados em memória.
+    // Para criar um ambiente de testes de integração, precisamos configurar o
+    // WebApplicationFactory para usar um ambiente de testes.
+    //**************************************************************************
 
     [Fact]
     public async Task Success()
