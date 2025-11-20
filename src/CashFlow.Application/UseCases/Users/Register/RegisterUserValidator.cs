@@ -13,7 +13,7 @@ public class RegisterUserValidator : AbstractValidator<RequestRegisterUserJson>
             .WithMessage(ResourceErrorMessages.EMAIL_EMPTY)
             // -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
             // Só irá validar o formato do email se ele não for vazio
-            // Isso evita que duas mensagens de erro sejam retornadas para o mesmo campo
+            // Isso evita que mais mensagens de erro sejam retornadas para o mesmo campo
             // Só é aplicado na validação corrente (current validator)
             // -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
             .EmailAddress()

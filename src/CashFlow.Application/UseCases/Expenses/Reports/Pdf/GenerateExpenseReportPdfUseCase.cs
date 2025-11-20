@@ -65,7 +65,7 @@ public class GenerateExpenseReportPdfUseCase : IGenerateExpenseReportPdfUseCase
             row.Cells[1].AddParagraph(expense.Date.ToString("t"));
             SetStyleBaseForExpenseInformation(row.Cells[1]);
 
-            row.Cells[2].AddParagraph(expense.PaymentType.PaymentTypeToString());
+            row.Cells[2].AddParagraph(expense.PaymentType.GetEnumDescription());
             SetStyleBaseForExpenseInformation(row.Cells[2]);
 
             AddAmountForExpense(cell: row.Cells[3], expenseAmount: expense.Amount);

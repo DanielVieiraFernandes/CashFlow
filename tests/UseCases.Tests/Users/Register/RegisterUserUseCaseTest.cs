@@ -1,5 +1,7 @@
 ﻿using CashFlow.Application.UseCases.Users.Register;
 using CashFlow.Communication.Requests;
+using CashFlow.Exception;
+using CashFlow.Exception.ExceptionsBase;
 using CommonTestUtilities.Cryptography;
 using CommonTestUtilities.Mapper;
 using CommonTestUtilities.Repositories;
@@ -20,6 +22,15 @@ public class RegisterUserUseCaseTest
      * atende ao seu propósito, independente de banco de dados, independente de biblioteca externa.
      * -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
      */
+    /*
+     * -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+     * Necessitamos de testes específicos para cobrir cada cenário possível.
+     * Para o exemplo do registro de usuário, temos:
+     * - Sucesso no registro
+     * - Falha no registro por e-mail já cadastrado
+     * - Falha no registro por dados inválidos
+     * -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+     */
 
 
     [Fact]
@@ -36,7 +47,49 @@ public class RegisterUserUseCaseTest
         result.Token.Should().NotBeNullOrWhiteSpace();
     }
 
-    private RegisterUserUseCase CreateUseCase()
+    [Fact]
+    public async Task Error_Name_Empty()
+    {
+        RequestRegisterUserJson request = RequestRegisterUserJsonBuilder.Build();
+        request.Name = string.Empty;
+
+        RegisterUserUseCase useCase = CreateUseCase();
+
+        // Forma simplificada de testar exceções em métodos assíncronos
+
+        var act = async Task () => await useCase.Execute(request);
+
+        //******************************************************************
+        // Eu espero que quando o método for executado,uma exceção do tipo
+        // 'ErrorOnValidationException' seja lançada com a mensagem
+        // específica de nome vazio
+        //******************************************************************
+
+        var result = await act.Should().ThrowAsync<ErrorOnValidationException>();
+
+        result.Where(ex => ex.GetErrors().Count == 1 &&
+            ex.GetErrors().Contains(ResourceErrorMessages.NAME_EMPTY)
+            );
+    }
+
+    [Fact]
+    public async Task Error_Email_Already_Exist()
+    {
+        RequestRegisterUserJson request = RequestRegisterUserJsonBuilder.Build();
+
+        RegisterUserUseCase useCase = CreateUseCase(request.Email);
+
+        var act = async Task () => await useCase.Execute(request);
+
+        var result = await act.Should().ThrowAsync<ErrorOnValidationException>();
+
+        result.Where(ex => ex.GetErrors().Count == 1 &&
+            ex.GetErrors().Contains(ResourceErrorMessages.EMAIL_ALREADY_REGISTERED)
+            );
+    }
+
+
+    private RegisterUserUseCase CreateUseCase(string? email = null)
     {
         // Aqui é uma exceção pois precisamos dele para preencher o objeto, é apenas uma facilidade no código
         var mapper = MapperBuilder.Build();
@@ -51,10 +104,15 @@ public class RegisterUserUseCaseTest
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
         var unitOfWork = UnitOfWorkBuilder.Build();
         var writeRepository = UserWriteOnlyRepositoryBuilder.Build();
-        var passwordEncrypter = PasswordEncrypterBuilder.Build();
+        var passwordEncrypter = new PasswordEncrypterBuilder().Build();
         var jwtTokenGenerator = JwtTokenGeneratorBuilder.Build();
-        var readRepository = new UserReadOnlyRepositoryBuilder().Build();
+        var readRepository = new UserReadOnlyRepositoryBuilder();
 
-        return new RegisterUserUseCase(mapper, passwordEncrypter, readRepository, writeRepository, unitOfWork, jwtTokenGenerator);
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            readRepository.ExistActiveUserWithEmail(email);
+        }
+
+        return new RegisterUserUseCase(mapper, passwordEncrypter, readRepository.Build(), writeRepository, unitOfWork, jwtTokenGenerator);
     }
 }
