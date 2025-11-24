@@ -41,6 +41,5 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                     config.UseInternalServiceProvider(provider);
                 });
             });
-
     }
 }

@@ -17,10 +17,10 @@ public class CultureMiddleware
 
         var cultureInfo = new CultureInfo("pt-BR"); // Defino uma cultura padrão
 
-        if (!string.IsNullOrWhiteSpace(requestedCulture) && supportedLanguages.Exists(l => l.Name.Equals(requestedCulture)))
-        {
-            cultureInfo = new CultureInfo(requestedCulture); // altero a cultura se tiver sido passado um idioma
-        }
+        //if (!string.IsNullOrWhiteSpace(requestedCulture) && supportedLanguages.Exists(l => l.Name.Equals(requestedCulture)))
+        //{
+        //    cultureInfo = new CultureInfo(requestedCulture); // altero a cultura se tiver sido passado um idioma
+        //}
 
         CultureInfo.CurrentCulture = cultureInfo;
         CultureInfo.CurrentUICulture = cultureInfo;
