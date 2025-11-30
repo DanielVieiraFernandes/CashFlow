@@ -3,8 +3,10 @@ using CommonTestUtilities.Requests;
 using FluentAssertions;
 using System.Globalization;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
+using WebApi.Test.InlineData;
 
 namespace WebApi.Test.Users.Register;
 
@@ -26,11 +28,6 @@ public class RegisterUserTest : IClassFixture<CustomWebApplicationFactory>
         //===============================================================================
 
         _httpClient = webApplicationFactory.CreateClient();
-
-        var cultureInfo = new CultureInfo("pt-BR");
-
-        CultureInfo.CurrentCulture = cultureInfo;
-        CultureInfo.CurrentUICulture = cultureInfo;
     }
 
     /*
@@ -86,11 +83,22 @@ public class RegisterUserTest : IClassFixture<CustomWebApplicationFactory>
         response.RootElement.GetProperty("token").GetString().Should().NotBeNullOrEmpty();
     }
 
-    [Fact]
-    public async Task Error_Empty_Name()
+    //==========================================================================
+    // Ao testar mensagens de erro, devemos pensar que com tempo
+    // talvez precisemos suportar múltiplas culturas (internacionalização)
+    // e ficar adicionando InlineData para cada cultura pode ser trabalhoso.
+    // Por isso, iremos utilizar uma classe inline para recuperar as culturas
+    // que queremos testar.
+    //==========================================================================
+
+    [Theory]
+    [ClassData(typeof(CultureInlineDataTest))]
+    public async Task Error_Empty_Name(string cultureInfo)
     {
         var request = RequestRegisterUserJsonBuilder.Build();
         request.Name = string.Empty;
+
+        _httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(cultureInfo));
 
         var result = await _httpClient.PostAsJsonAsync(METHOD, request);
 
@@ -102,6 +110,9 @@ public class RegisterUserTest : IClassFixture<CustomWebApplicationFactory>
 
         var errors = response.RootElement.GetProperty("errorMessages").EnumerateArray();
 
-        errors.Should().HaveCount(1).And.Contain(error => error.GetString()!.Equals(ResourceErrorMessages.NAME_EMPTY));
+        // Dessa maneira, consigo recuperar o valor de uma cultura específica
+        var expectedMessage = ResourceErrorMessages.ResourceManager.GetString("NAME_EMPTY", new CultureInfo(cultureInfo));
+
+        errors.Should().HaveCount(1).And.Contain(error => error.GetString()!.Equals(expectedMessage));
     }
 }
