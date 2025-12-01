@@ -1,6 +1,8 @@
 using CashFlow.Api.Filters;
 using CashFlow.Api.Middleware;
+using CashFlow.Api.Token;
 using CashFlow.Application;
+using CashFlow.Domain.Security.Tokens;
 using CashFlow.Infraestructure;
 using CashFlow.Infraestructure.Extensions;
 using CashFlow.Infraestructure.Migrations;
@@ -56,6 +58,14 @@ builder.Services.AddRouting(op =>
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
+// Registramos o HttpContextTokenValue como implementação da interface ITokenProvider
+builder.Services.AddScoped<ITokenProvider, HttpContextTokenValue>();
+//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+// Necessário para o HttpContextTokenValue funcionar
+// liberando a interface IHttpContextAccessor para injeção de dependência
+//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+builder.Services.AddHttpContextAccessor();
+
 var signingKey = builder.Configuration.GetValue<string>("Settings:Jwt:SigningKey");
 
 // A Api deve estar preparada para utilizar autenticação com essas configurações
@@ -104,9 +114,9 @@ app.UseMiddleware<CultureMiddleware>();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
 app.UseAuthentication();
+
+app.UseAuthorization();
 
 app.MapControllers();
 
