@@ -17,6 +17,6 @@ public class User
     /// <summary>
     /// Para fazer o controle por RBAC (Role-Based Access Control)
     /// </summary>
-    public Roles Role { get; set; } = Roles.TEAM_MEMBER;
+    public string Role { get; set; } = Roles.TEAM_MEMBER;
 
 }

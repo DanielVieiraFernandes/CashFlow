@@ -1,10 +1,8 @@
-﻿using System.ComponentModel;
+﻿namespace CashFlow.Domain.Enums;
 
-namespace CashFlow.Domain.Enums;
-public enum Roles
+public static class Roles
 {
-    [Description("administrator")]
-    ADMIN,
-    [Description("teamMember")]
-    TEAM_MEMBER,
+    public const string ADMIN = "administrator";
+
+    public const string TEAM_MEMBER = "teamMember";
 }
