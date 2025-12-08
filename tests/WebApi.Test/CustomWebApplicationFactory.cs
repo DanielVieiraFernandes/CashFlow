@@ -1,4 +1,5 @@
 ﻿using CashFlow.Domain.Security.Cryptography;
+using CashFlow.Domain.Security.Tokens;
 using CashFlow.Infraestructure.DataAccess;
 using CommonTestUtilities.Entities;
 using Microsoft.AspNetCore.Hosting;
@@ -17,9 +18,11 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
     private CashFlow.Domain.Entities.User _user;
     private string _password;
+    private string _token;
     public string GetEmail() => _user.Email;
     public string GetName() => _user.Name;
     public string GetPassword() => _password;
+    public string GetToken() => _token;
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         //****************************************************************
@@ -58,11 +61,20 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 var scope = services.BuildServiceProvider().CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<CashFlowDbContext>();
                 var passwordEncrypter = scope.ServiceProvider.GetRequiredService<IPasswordEncrypter>();
+                var tokenGenerator = scope.ServiceProvider.GetRequiredService<IAccessTokenGenerator>();
+
                 StartDatabase(dbContext, passwordEncrypter);
+
+                //*******************************************************************
+                // Gera um token para o usuário criado no banco de dados em memória.
+                // Útil para testes de rotas com autenticação.
+                //*******************************************************************
+                _token = tokenGenerator.Generate(_user);
             });
     }
 
-    private void StartDatabase(CashFlowDbContext dbContext, IPasswordEncrypter passwordEncrypter)
+    private void StartDatabase(CashFlowDbContext dbContext,
+        IPasswordEncrypter passwordEncrypter)
     {
         _user = UserBuilder.Build();
 
