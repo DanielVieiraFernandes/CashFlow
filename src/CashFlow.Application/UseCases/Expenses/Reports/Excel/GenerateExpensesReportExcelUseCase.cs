@@ -1,24 +1,29 @@
 ﻿using CashFlow.Domain;
 using CashFlow.Domain.Entities;
-using CashFlow.Domain.Enums;
 using CashFlow.Domain.Reports;
 using CashFlow.Domain.Repositories.Expenses;
+using CashFlow.Domain.Services.LoggedUser;
 using ClosedXML.Excel;
 
 namespace CashFlow.Application.UseCases.Expenses.Reports.Excel;
+
 public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUseCase
 {
     private const string CURRENCY_SYMBOL = "R$";
     private readonly IExpensesReadOnlyRepository _repository;
-    public GenerateExpensesReportExcelUseCase(IExpensesReadOnlyRepository repository)
+    private readonly ILoggedUser _loggedUser;
+    public GenerateExpensesReportExcelUseCase(IExpensesReadOnlyRepository repository, ILoggedUser loggedUser)
     {
         _repository = repository;
+        _loggedUser = loggedUser;
     }
     public async Task<byte[]> Execute(DateTime month)
     {
         var monthInDateOnly = new DateOnly(year: month.Year, month: month.Month, day: month.Day);
 
-        List<Expense> expenses = await _repository.FilterByMonth(monthInDateOnly);
+        var loggedUser = await _loggedUser.Get();
+
+        List<Expense> expenses = await _repository.FilterByMonth(loggedUser, monthInDateOnly);
 
         if (expenses.Count == 0)
         {
@@ -27,7 +32,7 @@ public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUs
 
         using XLWorkbook workbook = new(); // o using chama a função dispose para liberar recursos do programa
 
-        workbook.Author = "Daniel Vieira";
+        workbook.Author = loggedUser.Name;
         workbook.Style.Font.FontSize = 12;
         workbook.Style.Font.FontName = "Roboto";
 
@@ -42,7 +47,7 @@ public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUs
         {
             worksheet.Cell($"A{raw}").Value = expense.Title;
             worksheet.Cell($"B{raw}").Value = expense.Date;
-            worksheet.Cell($"C{raw}").Value = expense.PaymentType.PaymentTypeToString();
+            worksheet.Cell($"C{raw}").Value = expense.PaymentType.GetEnumDescription();
             worksheet.Cell($"D{raw}").Value = expense.Amount;
             worksheet.Cell($"D{raw}").Style.NumberFormat.Format = $"- {CURRENCY_SYMBOL} #,##0.00"; // formando isso como uma moeda com duas casas decimais
             worksheet.Cell($"E{raw}").Value = expense.Description;
@@ -59,18 +64,6 @@ public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUs
         workbook.SaveAs(file);
 
         return file.ToArray();
-    }
-
-    private string ConvertPaymentType(PaymentType payment)
-    {
-        return payment switch
-        {
-            PaymentType.Cash => "Dinheiro",
-            PaymentType.CreditCard => "Cartão de Crédito",
-            PaymentType.DebitCard => "Cartão de Débito",
-            PaymentType.EletronicTransfer => "Transferência Bancária",
-            _ => throw new NotImplementedException()
-        };
     }
 
     private void InsertHeader(IXLWorksheet worksheet)

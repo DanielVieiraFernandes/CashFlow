@@ -8,6 +8,7 @@ using CashFlow.Domain.Services.LoggedUser;
 using CashFlow.Exception.ExceptionsBase;
 
 namespace CashFlow.Application.UseCases.Expenses.Register;
+
 public class RegisterExpenseUseCase : IRegisterExpenseUseCase
 {
     private readonly IExpensesWriteOnlyRepository _repository;
