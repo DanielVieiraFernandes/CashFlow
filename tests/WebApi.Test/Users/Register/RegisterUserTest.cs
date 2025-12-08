@@ -3,8 +3,6 @@ using CommonTestUtilities.Requests;
 using FluentAssertions;
 using System.Globalization;
 using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using WebApi.Test.InlineData;
 
@@ -15,19 +13,18 @@ namespace WebApi.Test.Users.Register;
 // implementamos a interface IClassFixture<T> fornecida pelo xUnit.
 // Passamos o CustomWebApplicationFactory para indicar o ambiente
 // no qual a API Web será executada durante os testes.
+//
+// Alterações:
+// Essa classe agora herda de CashFlowClassFixture, que já implementa
+// IClassFixture<CustomWebApplicationFactory> e fornece métodos
+// comuns para os testes de integração.
 //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-public class RegisterUserTest : IClassFixture<CustomWebApplicationFactory>
+public class RegisterUserTest : CashFlowClassFixture
 {
     private const string METHOD = "api/user";
-    private readonly HttpClient _httpClient;
-    public RegisterUserTest(CustomWebApplicationFactory webApplicationFactory)
+    public RegisterUserTest(CustomWebApplicationFactory webApplicationFactory) : base(webApplicationFactory)
     {
-        //===============================================================================
-        // Esse servidor web simula a aplicação real durante os testes de integração.
-        // e devolve um HttpClient configurado para fazer requisições a esse servidor.
-        //===============================================================================
 
-        _httpClient = webApplicationFactory.CreateClient();
     }
 
     /*
@@ -61,7 +58,7 @@ public class RegisterUserTest : IClassFixture<CustomWebApplicationFactory>
     {
         var request = RequestRegisterUserJsonBuilder.Build();
 
-        var result = await _httpClient.PostAsJsonAsync(METHOD, request);
+        var result = await DoPost(METHOD, request);
 
         result.StatusCode.Should().Be(HttpStatusCode.Created);
 
@@ -98,9 +95,8 @@ public class RegisterUserTest : IClassFixture<CustomWebApplicationFactory>
         var request = RequestRegisterUserJsonBuilder.Build();
         request.Name = string.Empty;
 
-        _httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(cultureInfo));
-
-        var result = await _httpClient.PostAsJsonAsync(METHOD, request);
+        // Utilizando parâmetros nomeados para não haver conflitos na passagem de parâmetros
+        var result = await DoPost(METHOD, request, cultureInfo: cultureInfo);
 
         result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 

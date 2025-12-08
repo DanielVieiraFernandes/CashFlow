@@ -3,8 +3,6 @@ using CommonTestUtilities.Requests;
 using FluentAssertions;
 using System.Globalization;
 using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using WebApi.Test.InlineData;
 
@@ -14,17 +12,13 @@ namespace WebApi.Test.Expenses.Register;
 // Como essa classe é um teste de integração, devemos utilizar essa interface 'IClassFixture' 
 // para configurar o ambiente de teste com a aplicação web.
 //**************************************************************************************************
-public class RegisterExpenseTest : IClassFixture<CustomWebApplicationFactory>
+public class RegisterExpenseTest : CashFlowClassFixture
 {
     private const string METHOD = "/api/expenses";
-
-    private readonly HttpClient _httpClient;
     private readonly string _token;
 
-    public RegisterExpenseTest(CustomWebApplicationFactory webApplicationFactory)
+    public RegisterExpenseTest(CustomWebApplicationFactory webApplicationFactory) : base(webApplicationFactory)
     {
-        _httpClient = webApplicationFactory.CreateClient();
-
         //*****************************************************************
         // Recupero o token JWT criado no momento em que o usuário foi
         // registrado no banco de dados memória
@@ -37,9 +31,7 @@ public class RegisterExpenseTest : IClassFixture<CustomWebApplicationFactory>
     {
         var request = RequestExpenseJsonBuilder.Build();
 
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-
-        var result = await _httpClient.PostAsJsonAsync(METHOD, request);
+        var result = await DoPost(METHOD, request, token: _token);
 
         result.StatusCode.Should().Be(HttpStatusCode.Created);
 
@@ -59,10 +51,7 @@ public class RegisterExpenseTest : IClassFixture<CustomWebApplicationFactory>
         var request = RequestExpenseJsonBuilder.Build();
         request.Title = string.Empty;
 
-        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _token);
-        _httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(cultureInfo));
-
-        var result = await _httpClient.PostAsJsonAsync(METHOD, request);
+        var result = await DoPost(METHOD, request, token: _token, cultureInfo: cultureInfo);
 
         result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
 
