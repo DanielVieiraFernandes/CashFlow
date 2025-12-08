@@ -3,6 +3,7 @@ using CashFlow.Domain.Repositories.Expenses;
 using Microsoft.EntityFrameworkCore;
 
 namespace CashFlow.Infraestructure.DataAccess.Repositories;
+
 internal class ExpensesRepository : IExpensesReadOnlyRepository, IExpensesWriteOnlyRepository,
     IExpensesUpdateOnlyRepository
 {
@@ -16,30 +17,25 @@ internal class ExpensesRepository : IExpensesReadOnlyRepository, IExpensesWriteO
         await _dbContext.Expenses.AddAsync(expense);
     }
 
-    public async Task<bool> Delete(long id)
+    public async Task Delete(long id)
     {
-        var result = await _dbContext.Expenses.FirstOrDefaultAsync(e => e.Id == id);
-
-        if (result is null) return false;
+        var result = await _dbContext.Expenses.FirstAsync(e => e.Id == id);
 
         _dbContext.Expenses.Remove(result);
-
-        return true;
     }
 
-    public async Task<List<Expense>> GetAll()
+    public async Task<List<Expense>> GetAll(User user)
     {
-        return await _dbContext.Expenses.AsNoTracking().ToListAsync(); // O AsNoTracking faz com que o Entity Framework
-                                                                       // não precise ficar monitorando as entidades, ele não salva na memória
-
+        return await _dbContext.Expenses.AsNoTracking().Where(e => e.UserId == user.Id).ToListAsync(); // O AsNoTracking faz com que o Entity Framework
+                                                                                                       // não precise ficar monitorando as entidades, ele não salva na memória
     }
 
-    async Task<Expense?> IExpensesReadOnlyRepository.GetById(long id)
+    async Task<Expense?> IExpensesReadOnlyRepository.GetById(User user, long id)
     {
-        return await _dbContext.Expenses.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id);
+        return await _dbContext.Expenses.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id && e.UserId == user.Id);
     }
 
-    async Task<Expense?> IExpensesUpdateOnlyRepository.GetById(User user,long id)
+    async Task<Expense?> IExpensesUpdateOnlyRepository.GetById(User user, long id)
     {
         return await _dbContext.Expenses.FirstOrDefaultAsync(e => e.Id == id && e.UserId == user.Id);
     }
@@ -49,7 +45,7 @@ internal class ExpensesRepository : IExpensesReadOnlyRepository, IExpensesWriteO
         _dbContext.Expenses.Update(expense);
     }
 
-    public async Task<List<Expense>> FilterByMonth(DateOnly date)
+    public async Task<List<Expense>> FilterByMonth(User user, DateOnly date)
     {
         var startDate = new DateTime(year: date.Year, month: date.Month, day: 1).Date;
 
@@ -60,7 +56,7 @@ internal class ExpensesRepository : IExpensesReadOnlyRepository, IExpensesWriteO
         return await _dbContext
             .Expenses
             .AsNoTracking()
-            .Where(expense => expense.Date >= startDate && expense.Date <= endDate)
+            .Where(expense => expense.UserId == user.Id && expense.Date >= startDate && expense.Date <= endDate)
             .OrderByDescending(expense => expense.Date) // Da menor data para a maior
             .ThenBy(expense => expense.Title) // Ordenação por título
             .ToListAsync();

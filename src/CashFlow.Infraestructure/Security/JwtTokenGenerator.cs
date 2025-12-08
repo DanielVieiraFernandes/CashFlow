@@ -6,6 +6,7 @@ using System.Security.Claims;
 using System.Text;
 
 namespace CashFlow.Infraestructure.Security;
+
 public class JwtTokenGenerator : IAccessTokenGenerator
 {
     private readonly uint _expirationTimeMinutes;
@@ -35,6 +36,7 @@ public class JwtTokenGenerator : IAccessTokenGenerator
         {
             new(ClaimTypes.Name, user.Name),
             new(ClaimTypes.Sid, user.UserIdentifier.ToString()),
+            new(ClaimTypes.Role, user.Role),
         };
 
         var tokenDescritptor = new SecurityTokenDescriptor
