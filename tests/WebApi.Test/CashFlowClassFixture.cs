@@ -61,4 +61,37 @@ public class CashFlowClassFixture : IClassFixture<CustomWebApplicationFactory>
         return await _httpClient.PostAsJsonAsync(requestUri, request);
     }
 
+    /// <summary>
+    /// Método auxiliar para realizar requisições GET com token e cultura.
+    /// </summary>
+    /// <param name="requestUri"></param>
+    /// <param name="token"></param>
+    /// <param name="cultureInfo"></param>
+    /// <returns></returns>
+    protected async Task<HttpResponseMessage> DoGet(string requestUri,
+         string token,
+         string cultureInfo = "")
+    {
+
+        //****************************************************************
+        // Caso eu receba um token, adiciono no cabeçalho da requisição
+        //****************************************************************
+        if (!string.IsNullOrEmpty(token))
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        //******************************************************************************
+        // Caso eu receba uma cultura específica, adiciono no cabeçalho da requisição
+        //******************************************************************************
+        if (!string.IsNullOrEmpty(cultureInfo))
+        {
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            // Limpo os valores anteriores para não haver conflito
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            _httpClient.DefaultRequestHeaders.AcceptLanguage.Clear();
+            _httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(cultureInfo));
+        }
+
+        return await _httpClient.GetAsync(requestUri);
+    }
+
 }

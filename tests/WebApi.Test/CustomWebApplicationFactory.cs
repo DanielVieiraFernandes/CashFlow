@@ -1,4 +1,5 @@
-﻿using CashFlow.Domain.Security.Cryptography;
+﻿using CashFlow.Domain.Entities;
+using CashFlow.Domain.Security.Cryptography;
 using CashFlow.Domain.Security.Tokens;
 using CashFlow.Infraestructure.DataAccess;
 using CommonTestUtilities.Entities;
@@ -15,14 +16,15 @@ namespace WebApi.Test;
 /// </summary>
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
-
-    private CashFlow.Domain.Entities.User _user;
+    private Expense _expense;
+    private User _user;
     private string _password;
     private string _token;
     public string GetEmail() => _user.Email;
     public string GetName() => _user.Name;
     public string GetPassword() => _password;
     public string GetToken() => _token;
+    public long GetExpenseId() => _expense.Id;
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         //****************************************************************
@@ -76,14 +78,35 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     private void StartDatabase(CashFlowDbContext dbContext,
         IPasswordEncrypter passwordEncrypter)
     {
-        _user = UserBuilder.Build();
+        //+++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        // Popula o banco de dados em memória com dados iniciais:
+        // - Usuários
+        // - Despesas
+        // -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+        // Essas operações ocorrem no momento em que a classe
+        // é instanciada, garantindo que cada teste tenha
+        // um estado inicial consistente e previsível.
+        //+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+        AddUsers(dbContext, passwordEncrypter);
+        AddExpenses(dbContext);
+
+        dbContext.SaveChanges();
+    }
+
+    private void AddUsers(CashFlowDbContext dbContext, IPasswordEncrypter passwordEncrypter)
+    {
+        _user = UserBuilder.Build();
         _password = _user.Password;
 
         _user.Password = passwordEncrypter.Encrypt(_user.Password);
 
         dbContext.Users.Add(_user);
+    }
 
-        dbContext.SaveChanges();
+    private void AddExpenses(CashFlowDbContext dbContext)
+    {
+        _expense = ExpenseBuilder.Build(_user);
+        dbContext.Expenses.Add(_expense);
     }
 }
