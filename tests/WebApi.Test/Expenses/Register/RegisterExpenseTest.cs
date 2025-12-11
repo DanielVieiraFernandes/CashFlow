@@ -23,7 +23,7 @@ public class RegisterExpenseTest : CashFlowClassFixture
         // Recupero o token JWT criado no momento em que o usuário foi
         // registrado no banco de dados memória
         //*****************************************************************
-        _token = webApplicationFactory.GetToken();
+        _token = webApplicationFactory.User_Team_Member.GetToken();
     }
 
     [Fact]

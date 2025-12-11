@@ -9,7 +9,8 @@ public class GetAllExpensesTest : CashFlowClassFixture
     private readonly string _token;
     public GetAllExpensesTest(CustomWebApplicationFactory webApplicationFactory) : base(webApplicationFactory)
     {
-        _token = webApplicationFactory.GetToken();
+        _token = webApplicationFactory.User_Team_Member.GetToken();
+
     }
 
     [Fact]

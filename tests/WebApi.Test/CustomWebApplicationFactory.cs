@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using WebApi.Test.Resources;
 
 namespace WebApi.Test;
 
@@ -16,15 +17,22 @@ namespace WebApi.Test;
 /// </summary>
 public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 {
-    private Expense _expense;
-    private User _user;
-    private string _password;
-    private string _token;
-    public string GetEmail() => _user.Email;
-    public string GetName() => _user.Name;
-    public string GetPassword() => _password;
-    public string GetToken() => _token;
-    public long GetExpenseId() => _expense.Id;
+    //*************************************************************************
+    // Estamos deixando os atributos de entidades como privados para
+    // impedir com que outra classe externa modifique diretamente os dados
+    //*************************************************************************
+    public ExpenseIdentityManager Expense { get; private set; } = default!;
+
+    //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+    // Um usuário com permissão de membro do time
+    //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+    public UserIdentityManager User_Team_Member { get; private set; } = default!;
+
+    //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+    // Um usuário com permissão de administrador
+    //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
+    public UserIdentityManager User_Admin { get; private set; } = default!;
+
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         //****************************************************************
@@ -63,21 +71,20 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 var scope = services.BuildServiceProvider().CreateScope();
                 var dbContext = scope.ServiceProvider.GetRequiredService<CashFlowDbContext>();
                 var passwordEncrypter = scope.ServiceProvider.GetRequiredService<IPasswordEncrypter>();
-                var tokenGenerator = scope.ServiceProvider.GetRequiredService<IAccessTokenGenerator>();
+                var accessTokenGenerator = scope.ServiceProvider.GetRequiredService<IAccessTokenGenerator>();
 
-                StartDatabase(dbContext, passwordEncrypter);
+                StartDatabase(dbContext, passwordEncrypter, accessTokenGenerator);
 
-                //*******************************************************************
-                // Gera um token para o usuário criado no banco de dados em memória.
-                // Útil para testes de rotas com autenticação.
-                //*******************************************************************
-                _token = tokenGenerator.Generate(_user);
+
             });
     }
 
-    private void StartDatabase(CashFlowDbContext dbContext,
-        IPasswordEncrypter passwordEncrypter)
+    private void StartDatabase(
+        CashFlowDbContext dbContext,
+        IPasswordEncrypter passwordEncrypter,
+        IAccessTokenGenerator accessTokenGenerator)
     {
+
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++
         // Popula o banco de dados em memória com dados iniciais:
         // - Usuários
@@ -88,25 +95,40 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         // um estado inicial consistente e previsível.
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        AddUsers(dbContext, passwordEncrypter);
-        AddExpenses(dbContext);
+        var user = AddUserTeamMember(dbContext, passwordEncrypter, accessTokenGenerator);
+        AddExpenses(dbContext, user);
 
         dbContext.SaveChanges();
     }
 
-    private void AddUsers(CashFlowDbContext dbContext, IPasswordEncrypter passwordEncrypter)
+    private User AddUserTeamMember(
+        CashFlowDbContext dbContext,
+        IPasswordEncrypter passwordEncrypter,
+        IAccessTokenGenerator accessTokenGenerator)
     {
-        _user = UserBuilder.Build();
-        _password = _user.Password;
+        var user = UserBuilder.Build();
+        var password = user.Password;
 
-        _user.Password = passwordEncrypter.Encrypt(_user.Password);
+        user.Password = passwordEncrypter.Encrypt(user.Password);
 
-        dbContext.Users.Add(_user);
+        dbContext.Users.Add(user);
+
+        //*******************************************************************
+        // Gera um token para o usuário criado no banco de dados em memória.
+        // Útil para testes de rotas com autenticação.
+        //*******************************************************************
+        var token = accessTokenGenerator.Generate(user);
+
+        User_Team_Member = new(user, password, token);
+
+        return user;
     }
 
-    private void AddExpenses(CashFlowDbContext dbContext)
+    private void AddExpenses(CashFlowDbContext dbContext, User user)
     {
-        _expense = ExpenseBuilder.Build(_user);
-        dbContext.Expenses.Add(_expense);
+        var expense = ExpenseBuilder.Build(user);
+        dbContext.Expenses.Add(expense);
+
+        Expense = new(expense);
     }
 }
