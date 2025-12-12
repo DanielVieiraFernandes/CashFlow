@@ -7,6 +7,7 @@ using CashFlow.Exception;
 using CashFlow.Exception.ExceptionsBase;
 
 namespace CashFlow.Application.UseCases.Expenses.Update;
+
 public class UpdateExpenseUseCase : IUpdateExpenseUseCase
 {
     private readonly IExpensesUpdateOnlyRepository _repository;
@@ -14,7 +15,7 @@ public class UpdateExpenseUseCase : IUpdateExpenseUseCase
     private readonly IMapper _mapper;
     private readonly ILoggedUser _loggedUser;
     public UpdateExpenseUseCase(IExpensesUpdateOnlyRepository repository,
-        IUnitOfWork unitOfWork, 
+        IUnitOfWork unitOfWork,
         IMapper mapper,
         ILoggedUser loggedUser)
     {
@@ -30,8 +31,8 @@ public class UpdateExpenseUseCase : IUpdateExpenseUseCase
 
         var loggedUser = await _loggedUser.Get();
 
-        var expense = await _repository.GetById(loggedUser,id);
-        
+        var expense = await _repository.GetById(loggedUser, id);
+
         if (expense is null) throw new NotFoundException(ResourceErrorMessages.EXPENSE_NOT_FOUND);
 
         _mapper.Map(request, expense); // O primeiro parâmetro é a fonte dos dados
