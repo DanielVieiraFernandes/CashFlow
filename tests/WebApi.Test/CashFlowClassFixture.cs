@@ -118,5 +118,31 @@ public class CashFlowClassFixture : IClassFixture<CustomWebApplicationFactory>
 
         return await _httpClient.DeleteAsync(requestUri);
     }
+    protected async Task<HttpResponseMessage> DoPut(string requestUri,
+        object request,
+         string token,
+         string cultureInfo = "")
+    {
+
+        //****************************************************************
+        // Caso eu receba um token, adiciono no cabeçalho da requisição
+        //****************************************************************
+        if (!string.IsNullOrEmpty(token))
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        //******************************************************************************
+        // Caso eu receba uma cultura específica, adiciono no cabeçalho da requisição
+        //******************************************************************************
+        if (!string.IsNullOrEmpty(cultureInfo))
+        {
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            // Limpo os valores anteriores para não haver conflito
+            //++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            _httpClient.DefaultRequestHeaders.AcceptLanguage.Clear();
+            _httpClient.DefaultRequestHeaders.AcceptLanguage.Add(new StringWithQualityHeaderValue(cultureInfo));
+        }
+
+        return await _httpClient.PutAsJsonAsync(requestUri, request);
+    }
 
 }
