@@ -36,5 +36,17 @@ public class ExpensesReadOnlyRepositoryBuilder
         return this;
     }
 
+    public ExpensesReadOnlyRepositoryBuilder FilterByMonth(User user, List<Expense> expenses)
+    {
+        //******************************************************************************
+        // Define que ao chamar o método FilterByMonth com o usuário especificado,
+        // o repositório irá retornar a lista de despesas fornecida para o mock.
+        // Como é um Mock, não devemos nos preocupar com o valor exato do DateOnly.
+        //******************************************************************************
+        _repository.Setup(repository => repository.FilterByMonth(user, It.IsAny<DateOnly>())).ReturnsAsync(expenses);
+
+        return this;
+    }
+
     public IExpensesReadOnlyRepository Build() => _repository.Object;
 }
