@@ -1,4 +1,5 @@
 ﻿using CashFlow.Domain.Entities;
+using CashFlow.Domain.Enums;
 using CashFlow.Domain.Security.Cryptography;
 using CashFlow.Domain.Security.Tokens;
 using CashFlow.Infraestructure.DataAccess;
@@ -21,7 +22,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     // Estamos deixando os atributos de entidades como privados para
     // impedir com que outra classe externa modifique diretamente os dados
     //*************************************************************************
-    public ExpenseIdentityManager Expense { get; private set; } = default!;
+    public ExpenseIdentityManager Expense_MemberTeam { get; private set; } = default!;
+    public ExpenseIdentityManager Expense_Admin { get; private set; } = default!;
 
     //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-
     // Um usuário com permissão de membro do time
@@ -74,8 +76,6 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 var accessTokenGenerator = scope.ServiceProvider.GetRequiredService<IAccessTokenGenerator>();
 
                 StartDatabase(dbContext, passwordEncrypter, accessTokenGenerator);
-
-
             });
     }
 
@@ -95,8 +95,13 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         // um estado inicial consistente e previsível.
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-        var user = AddUserTeamMember(dbContext, passwordEncrypter, accessTokenGenerator);
-        AddExpenses(dbContext, user);
+        var userTeamMember = AddUserTeamMember(dbContext, passwordEncrypter, accessTokenGenerator);
+        var expenseTeamMember = AddExpenses(dbContext, userTeamMember, expenseId: 1);
+        Expense_MemberTeam = new(expenseTeamMember);
+
+        var userAdmin = AddUserAdmin(dbContext, passwordEncrypter, accessTokenGenerator);
+        var expenseAdmin = AddExpenses(dbContext, userAdmin, expenseId: 2);
+        Expense_Admin = new(expenseAdmin);
 
         dbContext.SaveChanges();
     }
@@ -107,6 +112,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         IAccessTokenGenerator accessTokenGenerator)
     {
         var user = UserBuilder.Build();
+
+        // Garanto que o Id seja sempre 1 para este usuário
+        user.Id = 1;
+
         var password = user.Password;
 
         user.Password = passwordEncrypter.Encrypt(user.Password);
@@ -124,11 +133,43 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         return user;
     }
 
-    private void AddExpenses(CashFlowDbContext dbContext, User user)
+    private User AddUserAdmin(
+        CashFlowDbContext dbContext,
+        IPasswordEncrypter passwordEncrypter,
+        IAccessTokenGenerator accessTokenGenerator)
+    {
+        // Sobrescrevo o parâmetro com o valor da permissão de administrador
+        var user = UserBuilder.Build(Roles.ADMIN);
+
+        // Garanto que o Id seja sempre 2 para este usuário
+        user.Id = 2;
+
+        var password = user.Password;
+
+        user.Password = passwordEncrypter.Encrypt(user.Password);
+
+        dbContext.Users.Add(user);
+
+        //*******************************************************************
+        // Gera um token para o usuário criado no banco de dados em memória.
+        // Útil para testes de rotas com autenticação.
+        //*******************************************************************
+        var token = accessTokenGenerator.Generate(user);
+
+        User_Admin = new(user, password, token);
+
+        return user;
+    }
+
+    private Expense AddExpenses(CashFlowDbContext dbContext, User user, long expenseId)
     {
         var expense = ExpenseBuilder.Build(user);
+
+        // Garanto que o Id seja sempre diferente para cada despesa
+        expense.Id = expenseId;
+
         dbContext.Expenses.Add(expense);
 
-        Expense = new(expense);
+        return expense;
     }
 }
