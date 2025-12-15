@@ -1,6 +1,5 @@
 ﻿using CashFlow.Application.UseCases.Expenses.Reports.Excel;
 using CashFlow.Application.UseCases.Expenses.Reports.Pdf;
-using CashFlow.Communication.Requests;
 using CashFlow.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,9 +15,10 @@ public class ReportController : ControllerBase
     [HttpGet("excel")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> GetExcel([FromServices] IGenerateExpensesReportExcelUseCase useCase, [FromQuery] RequestInformationReportJson request)
+    public async Task<IActionResult> GetExcel([FromServices] IGenerateExpensesReportExcelUseCase useCase,
+        [FromQuery] DateOnly month)
     {
-        byte[] file = await useCase.Execute(request.Month); // nosso arquivo vai ser um array de bytes
+        byte[] file = await useCase.Execute(month); // nosso arquivo vai ser um array de bytes
 
         if (file.Length > 0) return File(file, MediaTypeNames.Application.Octet, "report.xlsx");
 

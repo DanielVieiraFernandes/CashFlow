@@ -17,13 +17,11 @@ public class GenerateExpensesReportExcelUseCase : IGenerateExpensesReportExcelUs
         _repository = repository;
         _loggedUser = loggedUser;
     }
-    public async Task<byte[]> Execute(DateTime month)
+    public async Task<byte[]> Execute(DateOnly month)
     {
-        var monthInDateOnly = new DateOnly(year: month.Year, month: month.Month, day: month.Day);
-
         var loggedUser = await _loggedUser.Get();
 
-        List<Expense> expenses = await _repository.FilterByMonth(loggedUser, monthInDateOnly);
+        List<Expense> expenses = await _repository.FilterByMonth(loggedUser, month);
 
         if (expenses.Count == 0)
         {
