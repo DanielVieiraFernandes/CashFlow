@@ -1,4 +1,5 @@
-﻿using CashFlow.Communication.Responses;
+﻿using CashFlow.Api.Utils;
+using CashFlow.Communication.Responses;
 using CashFlow.Exception;
 using CashFlow.Exception.ExceptionsBase;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,8 @@ public class ExceptionFilter : IExceptionFilter
 {
     public void OnException(ExceptionContext context)
     {
+        RecordLog.RecordErrorLog(context.Exception);
+
         if (context.Exception is CashFlowException)
         {
             HandleProjectException(context);
