@@ -3,7 +3,11 @@ using CashFlow.Domain.Repositories.User;
 using Microsoft.EntityFrameworkCore;
 
 namespace CashFlow.Infraestructure.DataAccess.Repositories;
-public class UserRepository : IUserReadOnlyRepository, IUserWriteOnlyRepository
+
+public class UserRepository :
+    IUserReadOnlyRepository,
+    IUserWriteOnlyRepository,
+    IUserUpdateOnlyRepository
 {
     private readonly CashFlowDbContext _dbContext;
 
@@ -22,8 +26,18 @@ public class UserRepository : IUserReadOnlyRepository, IUserWriteOnlyRepository
         return await _dbContext.Users.AnyAsync(user => user.Email.Equals(email));
     }
 
+    public async Task<User> GetById(long id)
+    {
+        return await _dbContext.Users.FirstAsync(user => user.Id == id);
+    }
+
     public async Task<User?> GetUserByEmail(string email)
     {
         return await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Email.Equals(email));
+    }
+
+    public void Update(User user)
+    {
+        _dbContext.Users.Update(user);
     }
 }
