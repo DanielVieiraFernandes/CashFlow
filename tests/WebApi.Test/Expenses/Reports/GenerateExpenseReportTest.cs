@@ -13,6 +13,16 @@ public class GenerateExpenseReportTest : CashFlowClassFixture
     private readonly string _teamMemberToken;
     private readonly DateTime _expenseDate;
 
+    public GenerateExpenseReportTest(CustomWebApplicationFactory webApplicationFactory) : base(webApplicationFactory)
+    {
+        _adminToken = webApplicationFactory.User_Admin.GetToken();
+        _teamMemberToken = webApplicationFactory.User_Team_Member.GetToken();
+        _expenseDate = webApplicationFactory.Expense_Admin.GetDate();
+
+        CultureInfo.CurrentCulture = new CultureInfo("pt-BR");
+        CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
+    }
+
     [Fact]
     public async Task Success_Pdf()
     {
@@ -20,7 +30,12 @@ public class GenerateExpenseReportTest : CashFlowClassFixture
         // _expenseDate:Y -> O 'Y' formata a data para mostrar somente o mês e o ano
         //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-        var result = await DoGet(requestUri: $"{METHOD}/pdf?month={_expenseDate:Y}", token: _adminToken,
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        // Tive que mudar o formato da data na query string para "yyyy-MM-dd" porque
+        // o formato "Y" estava causando problemas ao interpretar a data no endpoint.
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+        var result = await DoGet(requestUri: $"{METHOD}/pdf?month={_expenseDate:yyyy-MM-dd}", token: _adminToken,
             cultureInfo: "pt-BR");
 
         result.StatusCode.Should().Be(HttpStatusCode.OK);
@@ -32,7 +47,7 @@ public class GenerateExpenseReportTest : CashFlowClassFixture
     [Fact]
     public async Task Success_Excel()
     {
-        var result = await DoGet(requestUri: $"{METHOD}/excel?month={_expenseDate:Y}", token: _adminToken, cultureInfo: "pt-BR");
+        var result = await DoGet(requestUri: $"{METHOD}/excel?month={_expenseDate:yyyy-MM-dd}", token: _adminToken, cultureInfo: "pt-BR");
 
         result.StatusCode.Should().Be(HttpStatusCode.OK);
 
@@ -43,7 +58,7 @@ public class GenerateExpenseReportTest : CashFlowClassFixture
     [Fact]
     public async Task Error_Forbbinden_User_Not_Allowed_Pdf()
     {
-        var result = await DoGet(requestUri: $"{METHOD}/pdf?month={_expenseDate:Y}", token: _teamMemberToken);
+        var result = await DoGet(requestUri: $"{METHOD}/pdf?month={_expenseDate:yyyy-MM-dd}", token: _teamMemberToken);
 
         result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
@@ -51,20 +66,11 @@ public class GenerateExpenseReportTest : CashFlowClassFixture
     [Fact]
     public async Task Error_Forbbinden_User_Not_Allowed_Excel()
     {
-        var result = await DoGet(requestUri: $"{METHOD}/excel?month={_expenseDate:Y}", token: _teamMemberToken);
+        var result = await DoGet(requestUri: $"{METHOD}/excel?month={_expenseDate:yyyy-MM-dd}", token: _teamMemberToken);
 
         result.StatusCode.Should().Be(HttpStatusCode.Forbidden);
     }
 
 
 
-    public GenerateExpenseReportTest(CustomWebApplicationFactory webApplicationFactory) : base(webApplicationFactory)
-    {
-        _adminToken = webApplicationFactory.User_Admin.GetToken();
-        _teamMemberToken = webApplicationFactory.User_Team_Member.GetToken();
-        _expenseDate = webApplicationFactory.Expense_Admin.GetDate();
-
-        CultureInfo.CurrentCulture = new CultureInfo("pt-BR");
-        CultureInfo.CurrentUICulture = new CultureInfo("pt-BR");
-    }
 }
