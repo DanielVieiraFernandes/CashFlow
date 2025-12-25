@@ -1,6 +1,7 @@
 ﻿using CashFlow.Domain.Enums;
 
 namespace CashFlow.Domain.Entities;
+
 public class Expense
 {
     public long Id { get; set; }
@@ -9,6 +10,16 @@ public class Expense
     public DateTime Date { get; set; }
     public decimal Amount { get; set; }
     public PaymentType PaymentType { get; set; }
+
+    //================================================
+    // ICollection: é uma interface que representa
+    // uma coleção genérica de objetos.
+    //================================================
+
+    /// <summary>
+    /// Coleção de tags associadas à despesa.
+    /// </summary>
+    public ICollection<Tag> Tags { get; set; } = [];
     public long UserId { get; set; }
     public User User { get; set; } = default!;
 }
