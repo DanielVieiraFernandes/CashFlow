@@ -46,13 +46,21 @@ public static class DependencyInjectionExtension
 
     public static void AddRepository(IServiceCollection services)
     {
+        //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+        // Unidade de trabalho
+        //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
         services.AddScoped<IUnitOfWork, UnityOfWork>();
+
+        //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+        // Repositórios de despesas
+        //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
         services.AddScoped<IExpensesWriteOnlyRepository, ExpensesRepository>();
         services.AddScoped<IExpensesReadOnlyRepository, ExpensesRepository>();
         services.AddScoped<IExpensesUpdateOnlyRepository, ExpensesRepository>();
 
-        // Serviços de usuários
-
+        //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+        // Repositórios de usuários
+        //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
         services.AddScoped<IUserReadOnlyRepository, UserRepository>();
         services.AddScoped<IUserWriteOnlyRepository, UserRepository>();
         services.AddScoped<IUserUpdateOnlyRepository, UserRepository>();
