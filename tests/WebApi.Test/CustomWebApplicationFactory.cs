@@ -96,12 +96,12 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         //+++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
         var userTeamMember = AddUserTeamMember(dbContext, passwordEncrypter, accessTokenGenerator);
-        var expenseTeamMember = AddExpenses(dbContext, userTeamMember, expenseId: 1);
-        Expense_MemberTeam = new(expenseTeamMember);
+        var expenseTeamMember = AddExpenses(dbContext, userTeamMember, expenseId: 1, lastTagId: 0);
+        Expense_MemberTeam = new(expenseTeamMember.Item1);
 
         var userAdmin = AddUserAdmin(dbContext, passwordEncrypter, accessTokenGenerator);
-        var expenseAdmin = AddExpenses(dbContext, userAdmin, expenseId: 2);
-        Expense_Admin = new(expenseAdmin);
+        var expenseAdmin = AddExpenses(dbContext, userAdmin, expenseId: 2, lastTagId: expenseTeamMember.Item2);
+        Expense_Admin = new(expenseAdmin.Item1);
 
         dbContext.SaveChanges();
     }
@@ -161,15 +161,27 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
         return user;
     }
 
-    private Expense AddExpenses(CashFlowDbContext dbContext, User user, long expenseId)
+    private (Expense, long) AddExpenses(CashFlowDbContext dbContext, User user, long expenseId, long lastTagId)
     {
         var expense = ExpenseBuilder.Build(user);
 
         // Garanto que o Id seja sempre diferente para cada despesa
         expense.Id = expenseId;
 
+        //************************************************************************
+        // Garanto que para cada entidade tag, o expenseId seja o correto
+        // pois no mock do ExpenseBuilder, as tags possuem um ExpenseId fixo
+        //************************************************************************
+        foreach (var tag in expense.Tags)
+        {
+            lastTagId++;
+
+            tag.Id = lastTagId;
+            tag.ExpenseId = expense.Id;
+        }
+
         dbContext.Expenses.Add(expense);
 
-        return expense;
+        return (expense, lastTagId);
     }
 }

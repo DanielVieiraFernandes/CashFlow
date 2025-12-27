@@ -4,24 +4,28 @@ using CashFlow.Exception;
 using CommonTestUtilities.Requests;
 using FluentAssertions;
 
-namespace Validators.Tests.Expenses.Register;
-public class RegisterExpenseValidatorTests
+namespace Validators.Tests.Expenses;
+
+public class ExpenseValidatorTests
 {
 
     [Fact]
     public void Success()
     {
-        // Arrange // parte onde a gente configura todas as instâncias para executar o teste unitário
+        // Arrange
+        // parte onde a gente configura todas as instâncias para executar o teste unitário
 
         var validator = new ExpenseValidator();
 
         var request = RequestExpenseJsonBuilder.Build();
 
-        // Act // executar o método que a gente quer testar
+        // Act 
+        // executar o método que a gente quer testar
 
         var result = validator.Validate(request);
 
-        // Assert // Eu espero um resultado, no caso dessa função, queremos que seja um resultado verdadeiro
+        // Assert 
+        // Eu espero um resultado, no caso dessa função, queremos que seja um resultado verdadeiro
 
         result.IsValid.Should().BeTrue();
     }
@@ -36,7 +40,7 @@ public class RegisterExpenseValidatorTests
 
         var validator = new ExpenseValidator();
         var request = RequestExpenseJsonBuilder.Build();
-        request.Title = string.Empty;
+        request.Title = title;
 
         // Act // executar o método que a gente quer testar
 
@@ -110,5 +114,20 @@ public class RegisterExpenseValidatorTests
         result.IsValid.Should().BeFalse();
         result.Errors.Should().ContainSingle()
             .And.Contain(e => e.ErrorMessage.Equals(ResourceErrorMessages.AMOUNT_MUST_BE_GREATHER_THAN));
+    }
+
+    [Fact]
+    public void Error_Tag_Invalid()
+    {
+
+        var validator = new ExpenseValidator();
+        var request = RequestExpenseJsonBuilder.Build();
+        request.Tags.Add((Tag)1000);
+
+        var result = validator.Validate(request);
+
+        result.IsValid.Should().BeFalse();
+        result.Errors.Should().ContainSingle()
+            .And.Contain(e => e.ErrorMessage.Equals(ResourceErrorMessages.TAG_TYPE_NOT_SUPPORTED));
     }
 }

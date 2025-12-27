@@ -38,6 +38,9 @@ public class GetExpenseByIdUseCaseTest
         result.Date.Should().Be(expense.Date);
         result.Amount.Should().Be(expense.Amount);
         result.PaymentType.Should().Be((CashFlow.Communication.Enums.PaymentType)expense.PaymentType);
+
+        // Comparando os valores da lista da entidade tag com os valores da lista de enum Tag
+        result.Tags.Should().NotBeNullOrEmpty().And.BeEquivalentTo(expense.Tags.Select(tag => tag.Value));
     }
 
     [Fact]
