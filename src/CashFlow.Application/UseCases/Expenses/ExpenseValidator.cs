@@ -3,6 +3,7 @@ using CashFlow.Exception;
 using FluentValidation;
 
 namespace CashFlow.Application.UseCases.Expenses;
+
 public class ExpenseValidator : AbstractValidator<RequestExpenseJson>
 {
 
@@ -14,6 +15,15 @@ public class ExpenseValidator : AbstractValidator<RequestExpenseJson>
         RuleFor(expense => expense.Date).LessThanOrEqualTo(DateTime.UtcNow).
             WithMessage(ResourceErrorMessages.EXPENSES_CANNOT_FOR_THE_FUTURE);
         RuleFor(expense => expense.PaymentType).IsInEnum().WithMessage(ResourceErrorMessages.PAYMENT_TYPE_INVALID);
+
+        //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+        // Verifica se todas as tags são válidas.
+        // Se os valores estão dentro do enum Tag
+        //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+        RuleFor(expense => expense.Tags).ForEach(tag =>
+        {
+            tag.IsInEnum().WithMessage(ResourceErrorMessages.TAG_TYPE_NOT_SUPPORTED);
+        });
     }
 
 }

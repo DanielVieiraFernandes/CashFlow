@@ -151,6 +151,9 @@
   <data name="PAYMENT_TYPE_INVALID" xml:space="preserve">
     <value>O tipo de pagamento não deve ser válido</value>
   </data>
+  <data name="TAG_TYPE_NOT_SUPPORTED" xml:space="preserve">
+    <value>Tag não suportada.</value>
+  </data>
   <data name="TITLE_REQUIRED" xml:space="preserve">
     <value>O título deve ser obrigatório</value>
   </data>
