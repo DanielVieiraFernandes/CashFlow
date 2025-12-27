@@ -121,7 +121,7 @@
     <value>The Amount must be greather than zero.</value>
   </data>
   <data name="EMAIL_ALREADY_REGISTERED" xml:space="preserve">
-    <value />
+    <value>Email already registered</value>
   </data>
   <data name="EMAIL_EMPTY" xml:space="preserve">
     <value>Email is empty</value>
@@ -139,19 +139,19 @@
     <value>Expense not found</value>
   </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
-    <value />
+    <value>Invalid Password</value>
   </data>
   <data name="NAME_EMPTY" xml:space="preserve">
     <value>Name is empty</value>
   </data>
   <data name="PASSWORD_DIFFERENT_CURRENT_PASSWORD" xml:space="preserve">
-    <value />
+    <value>Password different current</value>
   </data>
   <data name="PAYMENT_TYPE_INVALID" xml:space="preserve">
     <value>Payment Type is not valid</value>
   </data>
   <data name="TAG_TYPE_NOT_SUPPORTED" xml:space="preserve">
-    <value />
+    <value>tag type not supported</value>
   </data>
   <data name="TITLE_REQUIRED" xml:space="preserve">
     <value>The title is required</value>

@@ -35,6 +35,11 @@ public class UpdateExpenseUseCase : IUpdateExpenseUseCase
 
         if (expense is null) throw new NotFoundException(ResourceErrorMessages.EXPENSE_NOT_FOUND);
 
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        // Deleto todas as tags antigas para depois adicionar as novas
+        //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        expense.Tags.Clear();
+
         _mapper.Map(request, expense); // O primeiro parâmetro é a fonte dos dados
                                        // O segundo é o destino desses dados, pra onde ele vai mapear
 

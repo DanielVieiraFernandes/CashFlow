@@ -70,7 +70,7 @@ namespace CashFlow.Exception {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Email already registered.
         /// </summary>
         public static string EMAIL_ALREADY_REGISTERED {
             get {
@@ -124,7 +124,7 @@ namespace CashFlow.Exception {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Invalid Password.
         /// </summary>
         public static string INVALID_PASSWORD {
             get {
@@ -142,7 +142,7 @@ namespace CashFlow.Exception {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to Password different current.
         /// </summary>
         public static string PASSWORD_DIFFERENT_CURRENT_PASSWORD {
             get {
@@ -160,7 +160,7 @@ namespace CashFlow.Exception {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to tag type not supported.
         /// </summary>
         public static string TAG_TYPE_NOT_SUPPORTED {
             get {
