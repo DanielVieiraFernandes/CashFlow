@@ -1,6 +1,7 @@
 ﻿using CashFlow.Domain.Entities;
 using CashFlow.Domain.Repositories.Expenses;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 
 namespace CashFlow.Infraestructure.DataAccess.Repositories;
 
@@ -32,12 +33,14 @@ internal class ExpensesRepository : IExpensesReadOnlyRepository, IExpensesWriteO
 
     async Task<Expense?> IExpensesReadOnlyRepository.GetById(User user, long id)
     {
-        return await _dbContext.Expenses.AsNoTracking().FirstOrDefaultAsync(e => e.Id == id && e.UserId == user.Id);
+        return await GetFullExpense()
+            .AsNoTracking()
+            .FirstOrDefaultAsync(e => e.Id == id && e.UserId == user.Id);
     }
 
     async Task<Expense?> IExpensesUpdateOnlyRepository.GetById(User user, long id)
     {
-        return await _dbContext.Expenses.FirstOrDefaultAsync(e => e.Id == id && e.UserId == user.Id);
+        return await GetFullExpense().FirstOrDefaultAsync(e => e.Id == id && e.UserId == user.Id);
     }
 
     public void Update(Expense expense)
@@ -60,5 +63,14 @@ internal class ExpensesRepository : IExpensesReadOnlyRepository, IExpensesWriteO
             .OrderByDescending(expense => expense.Date) // Da menor data para a maior
             .ThenBy(expense => expense.Title) // Ordenação por título
             .ToListAsync();
+    }
+
+    private IIncludableQueryable<Expense, ICollection<Tag>> GetFullExpense()
+    {
+        return _dbContext.Expenses
+           //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+           // Com o include o EF realiza um Join com a tabela de tags 
+           //-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+           .Include(expense => expense.Tags);
     }
 }

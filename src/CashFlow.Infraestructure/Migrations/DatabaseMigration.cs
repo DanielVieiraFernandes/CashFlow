@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CashFlow.Infraestructure.Migrations;
+
 public static class DatabaseMigration
 {
     public static async Task MigrateDatabase(IServiceProvider serviceProvider)
