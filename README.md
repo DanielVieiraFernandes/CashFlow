@@ -29,7 +29,7 @@ Para obter uma cópia local funcionando, siga estes passos simples.
 
 1. Clone o repositório:
     ```sh
-    git clone https://github.com/welissonArley/CashFlow.git
+    git clone https://github.com/DanielVieiraFernandes/CashFlow.git
     ```
 
 2. Preencha as informações no arquivo `appsettings.Development.json`.
