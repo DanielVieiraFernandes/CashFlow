@@ -4,9 +4,12 @@ using CashFlow.Api.Token;
 using CashFlow.Application;
 using CashFlow.Domain.Security.Tokens;
 using CashFlow.Infraestructure;
+using CashFlow.Infraestructure.DataAccess;
 using CashFlow.Infraestructure.Extensions;
 using CashFlow.Infraestructure.Migrations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -102,7 +105,33 @@ builder.Services.AddAuthentication(config =>
 
 });
 
+//**************************************************
+// Adiciona os health checks na aplicação
+// e verifica a conexão com o banco de dados
+//**************************************************
+builder.Services.AddHealthChecks().AddDbContextCheck<CashFlowDbContext>();
+
 var app = builder.Build();
+
+//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+// Com isso verificamos se nossa API está executando e se 
+// comunicando com o banco de dados corretamente
+//-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
+
+// Vem do pacote Microsoft.AspNetCore.Diagnostics.HealthChecks
+app.MapHealthChecks("/health", new HealthCheckOptions
+{
+    // Não queremos que faça o cache dessas respostas
+    AllowCachingResponses = false,
+
+    // Definimos como será o retorno do status code baseado no resultado
+    ResultStatusCodes = {
+        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+        [HealthStatus.Degraded] = StatusCodes.Status503ServiceUnavailable,
+        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+    },
+
+});
 
 if (app.Environment.IsDevelopment())
 {
